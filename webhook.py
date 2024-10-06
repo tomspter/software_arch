@@ -4,11 +4,19 @@ import os
 
 app = FastAPI()
 
+# need to change the directory
 backend_dir = "/home/code/gin-learn"
 
 frontend_dir = "/home/code/react-test"
 
-# docker rmi $(docker images -f "dangling=true" -q)
+
+# Remove none images
+def rmi_none_images():
+    # docker rmi $(docker images -f "dangling=true" -q)
+    subprocess.call(['docker', 'rmi', '$(docker', 'images', '-f', '"dangling=true"', '-q)'])
+
+
+# Run backend command
 def run_backend_cmd():
     os.chdir(backend_dir)
 
@@ -17,6 +25,10 @@ def run_backend_cmd():
     subprocess.call(['docker-compose', 'down'])
     subprocess.call(['docker-compose', 'up', '--build', '-d'])
 
+    rmi_none_images()
+
+
+# Run frontend command
 def run_frontend_cmd():
     os.chdir(frontend_dir)
 
@@ -24,6 +36,9 @@ def run_frontend_cmd():
 
     subprocess.call(['docker-compose', 'down'])
     subprocess.call(['docker-compose', 'up', '--build', '-d'])
+
+    rmi_none_images()
+
 
 @app.post("/backend-webhook")
 async def github_webhook(request: Request, background_tasks: BackgroundTasks):
@@ -34,6 +49,7 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
         return {"message": "success"}
 
     return {"message": "failed"}
+
 
 @app.post("/frontend-webhook")
 async def github_webhook(request: Request, background_tasks: BackgroundTasks):
