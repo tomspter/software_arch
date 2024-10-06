@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build:
+      context: .
+    image: frontend-image:latest
+    ports:
+      - "80:80"
+    networks:
+      - project-bridge
+
+networks:
+  project-bridge:
+    external: true
